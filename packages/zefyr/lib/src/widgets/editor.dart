@@ -14,6 +14,8 @@ import 'scope.dart';
 import 'theme.dart';
 import 'toolbar.dart';
 
+import 'package:zefyr/src/widgets/attr_delegate.dart';
+
 /// Widget for editing Zefyr documents.
 class ZefyrEditor extends StatefulWidget {
   const ZefyrEditor({
@@ -28,6 +30,7 @@ class ZefyrEditor extends StatefulWidget {
     this.selectionControls,
     this.physics,
     this.keyboardAppearance,
+    this.attrDelegate,
   })  : assert(mode != null),
         assert(controller != null),
         assert(focusNode != null),
@@ -47,6 +50,9 @@ class ZefyrEditor extends StatefulWidget {
   ///
   /// Defaults to true. Cannot be null.
   final bool autofocus;
+
+  ///Call onTap Link
+  final ZefyrAttrDelegate attrDelegate;
 
   /// Editing mode of this editor.
   final ZefyrMode mode;
@@ -87,6 +93,7 @@ class _ZefyrEditorState extends State<ZefyrEditor> {
   ZefyrThemeData _themeData;
   GlobalKey<ZefyrToolbarState> _toolbarKey;
   ZefyrScaffoldState _scaffold;
+  ZefyrAttrDelegate _attrDelegate;
 
   bool get hasToolbar => _toolbarKey != null;
 
@@ -130,6 +137,7 @@ class _ZefyrEditorState extends State<ZefyrEditor> {
   void initState() {
     super.initState();
     _imageDelegate = widget.imageDelegate;
+    _attrDelegate = widget.attrDelegate;
   }
 
   @override
@@ -141,6 +149,10 @@ class _ZefyrEditorState extends State<ZefyrEditor> {
     if (widget.imageDelegate != oldWidget.imageDelegate) {
       _imageDelegate = widget.imageDelegate;
       _scope.imageDelegate = _imageDelegate;
+    }
+    if (widget.attrDelegate != oldWidget.attrDelegate) {
+      _attrDelegate = widget.attrDelegate;
+      _scope.attrDelegate = _attrDelegate;
     }
   }
 
@@ -159,6 +171,7 @@ class _ZefyrEditorState extends State<ZefyrEditor> {
         imageDelegate: _imageDelegate,
         controller: widget.controller,
         focusNode: widget.focusNode,
+        attrDelegate: _attrDelegate,
         focusScope: FocusScope.of(context),
       );
       _scope.addListener(_handleChange);
@@ -169,7 +182,7 @@ class _ZefyrEditorState extends State<ZefyrEditor> {
 
     final scaffold = ZefyrScaffold.of(context);
     if (_scaffold != scaffold) {
-      final didHaveToolbar = hasToolbar;
+      bool didHaveToolbar = hasToolbar;
       hideToolbar();
       _scaffold = scaffold;
       if (didHaveToolbar) showToolbar();
@@ -186,8 +199,8 @@ class _ZefyrEditorState extends State<ZefyrEditor> {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
-    final keyboardAppearance =
+    final ThemeData themeData = Theme.of(context);
+    final Brightness keyboardAppearance =
         widget.keyboardAppearance ?? themeData.primaryColorBrightness;
 
     Widget editable = ZefyrEditableText(

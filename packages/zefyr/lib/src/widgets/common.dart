@@ -2,6 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -13,6 +14,8 @@ import 'image.dart';
 import 'rich_text.dart';
 import 'scope.dart';
 import 'theme.dart';
+
+import 'package:zefyr/src/widgets/attr_delegate.dart';
 
 /// Represents single line of rich text document in Zefyr editor.
 class ZefyrLine extends StatefulWidget {
@@ -52,7 +55,7 @@ class _ZefyrLineState extends State<ZefyrLine> {
       assert(widget.style != null);
       content = ZefyrRichText(
         node: widget.node,
-        text: buildText(context),
+        text: buildText(context, scope),
       );
     }
 
@@ -60,14 +63,11 @@ class _ZefyrLineState extends State<ZefyrLine> {
       Color cursorColor;
       switch (theme.platform) {
         case TargetPlatform.iOS:
-        case TargetPlatform.macOS:
           cursorColor ??= CupertinoTheme.of(context).primaryColor;
           break;
 
         case TargetPlatform.android:
         case TargetPlatform.fuchsia:
-        case TargetPlatform.windows:
-        case TargetPlatform.linux:
           cursorColor = theme.cursorColor;
           break;
       }
@@ -101,14 +101,14 @@ class _ZefyrLineState extends State<ZefyrLine> {
   }
 
   void bringIntoView(BuildContext context) {
-    final scrollable = Scrollable.of(context);
+    ScrollableState scrollable = Scrollable.of(context);
     final object = context.findRenderObject();
     assert(object.attached);
-    final viewport = RenderAbstractViewport.of(object);
+    final RenderAbstractViewport viewport = RenderAbstractViewport.of(object);
     assert(viewport != null);
 
-    final offset = scrollable.position.pixels;
-    var target = viewport.getOffsetToReveal(object, 0.0).offset;
+    final double offset = scrollable.position.pixels;
+    double target = viewport.getOffsetToReveal(object, 0.0).offset;
     if (target - offset < 0.0) {
       scrollable.position.jumpTo(target);
       return;
@@ -119,26 +119,40 @@ class _ZefyrLineState extends State<ZefyrLine> {
     }
   }
 
-  TextSpan buildText(BuildContext context) {
+  TextSpan buildText(BuildContext context, ZefyrScope scope) {
     final theme = ZefyrTheme.of(context);
-    final children = widget.node.children
-        .map((node) => _segmentToTextSpan(node, theme))
+    final List<TextSpan> children = widget.node.children
+        .map((node) => _segmentToTextSpan(node, theme, scope))
         .toList(growable: false);
     return TextSpan(style: widget.style, children: children);
   }
 
-  TextSpan _segmentToTextSpan(Node node, ZefyrThemeData theme) {
+  TextSpan _segmentToTextSpan(Node node, ZefyrThemeData theme, ZefyrScope scope) {
     final TextNode segment = node;
     final attrs = segment.style;
 
+    GestureRecognizer recognizer;
+
+    if (attrs.contains(NotusAttribute.link)) {
+      final tapGestureRecognizer = TapGestureRecognizer();
+      tapGestureRecognizer.onTap = () {
+        print("delegate: ${scope.attrDelegate}");
+        if (scope.attrDelegate?.onLinkTap != null) {
+          scope.attrDelegate.onLinkTap(attrs.get(NotusAttribute.link).value);
+        }
+      };
+      recognizer = tapGestureRecognizer;
+    }
+
     return TextSpan(
       text: segment.value,
+      recognizer: recognizer,
       style: _getTextStyle(attrs, theme),
     );
   }
 
   TextStyle _getTextStyle(NotusStyle style, ZefyrThemeData theme) {
-    var result = TextStyle();
+    TextStyle result = TextStyle();
     if (style.containsSame(NotusAttribute.bold)) {
       result = result.merge(theme.attributeTheme.bold);
     }
