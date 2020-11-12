@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:notus/notus.dart';
 
 import 'buttons.dart';
@@ -86,7 +87,8 @@ class ZefyrToolbarScaffold extends StatelessWidget {
     if (trailing != null) {
       children.add(trailing);
     } else if (autoImplyTrailing) {
-      children.add(toolbar.buildButton(context, ZefyrToolbarAction.close));
+      //todo removed trailing. beofre uncomment this, uncomment trailing attribute in [ZefyrToolbarState] build method
+      // children.add(toolbar.buildButton(context, ZefyrToolbarAction.close));
     }
     return Container(
       constraints: constraints,
@@ -221,7 +223,7 @@ class ZefyrToolbarState extends State<ZefyrToolbar>
     final toolbar = ZefyrToolbarScaffold(
       key: _toolbarKey,
       body: ZefyrButtonList(buttons: _buildButtons(context)),
-      trailing: buildButton(context, ZefyrToolbarAction.hideKeyboard),
+      // trailing: buildButton(context, ZefyrToolbarAction.hideKeyboard),
     );
 
     layers.add(toolbar);
@@ -253,13 +255,13 @@ class ZefyrToolbarState extends State<ZefyrToolbar>
       buildButton(context, ZefyrToolbarAction.bold),
       buildButton(context, ZefyrToolbarAction.italic),
       LinkButton(),
-      HeadingButton(),
+//      HeadingButton(),
+      if (editor.imageDelegate != null) ImageButton(),
       buildButton(context, ZefyrToolbarAction.bulletList),
       buildButton(context, ZefyrToolbarAction.numberList),
-      buildButton(context, ZefyrToolbarAction.quote),
-      buildButton(context, ZefyrToolbarAction.code),
-      buildButton(context, ZefyrToolbarAction.horizontalRule),
-      if (editor.imageDelegate != null) ImageButton(),
+      // buildButton(context, ZefyrToolbarAction.quote),
+      // buildButton(context, ZefyrToolbarAction.code),
+//      buildButton(context, ZefyrToolbarAction.horizontalRule),
     ];
     return buttons;
   }
@@ -300,10 +302,10 @@ class _ZefyrButtonListState extends State<ZefyrButtonList> {
       physics: ClampingScrollPhysics(),
     );
 
-    final leftArrow = _showLeftArrow
+    final leftArrow = _showLeftArrow && false //todo removed
         ? Icon(Icons.arrow_left, size: 18.0, color: color)
         : null;
-    final rightArrow = _showRightArrow
+    final rightArrow = _showRightArrow && false // todo removed
         ? Icon(Icons.arrow_right, size: 18.0, color: color)
         : null;
     return Row(
@@ -335,21 +337,22 @@ class _ZefyrButtonListState extends State<ZefyrButtonList> {
 
 class _DefaultZefyrToolbarDelegate implements ZefyrToolbarDelegate {
   static const kDefaultButtonIcons = {
-    ZefyrToolbarAction.bold: Icons.format_bold,
-    ZefyrToolbarAction.italic: Icons.format_italic,
-    ZefyrToolbarAction.link: Icons.link,
+    ZefyrToolbarAction.bold: Feather.bold ?? Icons.format_bold,
+    ZefyrToolbarAction.italic: Feather.italic ?? Icons.format_italic,
+    ZefyrToolbarAction.link: Feather.link ?? Icons.link,
     ZefyrToolbarAction.unlink: Icons.link_off,
     ZefyrToolbarAction.clipboardCopy: Icons.content_copy,
     ZefyrToolbarAction.openInBrowser: Icons.open_in_new,
     ZefyrToolbarAction.heading: Icons.format_size,
-    ZefyrToolbarAction.bulletList: Icons.format_list_bulleted,
+    ZefyrToolbarAction.bulletList: Feather.list ?? Icons.format_list_bulleted,
     ZefyrToolbarAction.numberList: Icons.format_list_numbered,
-    ZefyrToolbarAction.code: Icons.code,
-    ZefyrToolbarAction.quote: Icons.format_quote,
+    ZefyrToolbarAction.code: Feather.code ?? Icons.code,
+    ZefyrToolbarAction.quote: Entypo.quote ?? Icons.format_quote,
     ZefyrToolbarAction.horizontalRule: Icons.remove,
-    ZefyrToolbarAction.image: Icons.photo,
-    ZefyrToolbarAction.cameraImage: Icons.photo_camera,
-    ZefyrToolbarAction.galleryImage: Icons.photo_library,
+    ZefyrToolbarAction.image: Feather.image ?? Icons.photo,
+    ZefyrToolbarAction.cameraImage: Feather.camera ?? Icons.photo_camera,
+    ZefyrToolbarAction.galleryImage:
+        Entypo.folder_images ?? Icons.photo_library,
     ZefyrToolbarAction.hideKeyboard: Icons.keyboard_hide,
     ZefyrToolbarAction.close: Icons.close,
     ZefyrToolbarAction.confirm: Icons.check,

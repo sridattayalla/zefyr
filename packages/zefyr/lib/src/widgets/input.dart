@@ -46,13 +46,10 @@ class InputConnectionController implements TextInputClient {
           keyboardAppearance: keyboardAppearance,
           textCapitalization: TextCapitalization.sentences,
         ),
-      )
-        ..show()
-        ..setEditingState(value);
+      )..setEditingState(value);
       _sentRemoteValues.add(value);
-    } else {
-      _textInputConnection.show();
     }
+    _textInputConnection.show();
   }
 
   /// Closes input connection if it's currently open. Otherwise does nothing.

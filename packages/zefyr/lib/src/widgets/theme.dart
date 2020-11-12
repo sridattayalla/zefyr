@@ -74,8 +74,9 @@ class ZefyrThemeData {
     final defaultStyle = DefaultTextStyle.of(context);
     final defaultLineTheme = LineTheme(
       textStyle: defaultStyle.style.copyWith(
-        fontSize: 16.0,
+        fontSize: 15.0,
         height: 1.3,
+        fontFamily: 'PTSerif'
       ),
       padding: EdgeInsets.symmetric(vertical: 8.0),
     );

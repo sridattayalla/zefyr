@@ -215,11 +215,11 @@ class RenderEditableImage extends RenderBox
       // Make constraints use 16:9 aspect ratio.
       final width = constraints.maxWidth - kHorizontalPadding * 2;
       final childConstraints = constraints.copyWith(
-        minWidth: 0.0,
-        maxWidth: width,
-        minHeight: 0.0,
-        maxHeight: (width * 9 / 16).floorToDouble(),
-      );
+          minWidth: 0.0,
+          maxWidth: width,
+          minHeight: 0.0,
+//        maxHeight: (width * 9 / 16).floorToDouble(),
+          maxHeight: constraints.maxHeight);
       child.layout(childConstraints, parentUsesSize: true);
       _lastChildSize = child.size;
       size = Size(constraints.maxWidth, _lastChildSize.height);
